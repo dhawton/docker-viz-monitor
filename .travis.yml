@@ -8,8 +8,8 @@ deploy:
   provider: releases
   skip_cleanup: true
   api_key:
-    secure:
+    secure: LnDaqXdDj9tjpMO3E9jetecWVweHWHeSVxrScZmQUCoZ/XEFUfY6Gn+/HY3GekOOeJJXjK5IujjgYMV1oRe1YuR8oVbiE0LcxCS1tGNZ4PmwQijqddDJZ/uc2EbuzcsN+cdX+M968olOZArrNjTwlY7ZRN3sw29O3CrVO4iLkQhFf8mCljrwrAT4Lc2uvHx/bo4zDUROEnkroewnx8RCW/UfY4mGgyD//8a3k+DR1Tw9pMZXVGWuc7faFEuNP4k4drUBuwyESlLg7NDTRHazS+kWAYpJ1Q96IKzV1UYOM25/uWSq7TX2XtxWhXEKz4hLhSP5bWU65qc3hspim9lUHfYfamtvY+TCwL1wHrS0y4VOPtPNuhpwCTGYaeo6LJ3GHnx06JRqMDIajv4uCWvikcZcX8+mh0nY4jv5yL/sdYb/syisVuFnVY5MZyHjAc3+n5+5jY7YYABLRCr+ICXzK1Vvo44JOW575z9ne3uZDVAxpoCeUqxGnL66rOg0aNcifLzPsw+747MPQ735R/WpbEz5l1hNvlTsMyNwJp8RgcngSjEBOjzYQtI/naYmCUYmTGiqQWA6Ytk2Hi/kb8RmoZkgBDH1R3o71nhGzm161XRQ5I6LyDqP7ezSdRMIUSYwLbGcS8KV5BUzI20bdnC9gmV6g2AOeVQ9S8OtL2nEpnc=
   file: viz-monitor
   on:
     repo: dhawton/docker-viz-monitor
-    tags: true # The deployment happens only if the commit has a tag.
+    tags: true
