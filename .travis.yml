@@ -1,0 +1,15 @@
+os: linux
+language: go
+go:
+- tip
+script:
+- GOOS=linux go build -a -installsuffix cgo -o viz-monitor .
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure:
+  file: viz-monitor
+  on:
+    repo: dhawton/docker-viz-monitor
+    tags: true # The deployment happens only if the commit has a tag.
