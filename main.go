@@ -1,17 +1,22 @@
 package main
 
 import (
-	"net/http"
 	"encoding/json"
+	"net/http"
+
+	"github.com/rs/cors"
 )
 
 func main() {
 	go initWorker()
+	mux := http.NewServeMux()
+	
+	mux.HandleFunc("/nodes", nodeHandler)
+	mux.HandleFunc("/services", serviceHandler)
+	mux.HandleFunc("/tasks", taskHandler)
 
-	http.HandleFunc("/tasks", taskHandler)
-	http.HandleFunc("/nodes", nodeHandler)
-	http.HandleFunc("/services", serviceHandler)
-	http.ListenAndServe(":8081", nil)
+	handler := cors.Default().Handler(mux)
+	http.ListenAndServe(":8081", handler)
 }
 
 func taskHandler(w http.ResponseWriter, r *http.Request) {

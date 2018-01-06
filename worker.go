@@ -2,10 +2,11 @@ package main
 
 import (
 	"os"
+	"time"
+
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/api/types"
 	"golang.org/x/net/context"
-	"time"
 )
 
 var nodes map[string]Nodes
