@@ -9,9 +9,9 @@ import (
 	"golang.org/x/net/context"
 )
 
-var nodes map[string]Nodes
-var services map[string]Services
-var tasks map[string]Tasks
+var nodes map[string]*Nodes
+var services map[string]*Services
+var tasks map[string]*Tasks
 
 func worker(cli *client.Client) {
 	mynodes, err := cli.NodeList(context.Background(), types.NodeListOptions{})
@@ -26,7 +26,7 @@ func worker(cli *client.Client) {
 			Role: string(node.Spec.Role),
 			Version: node.Description.Engine.EngineVersion,
 		}
-		nodes[mynode.ID] = mynode
+		nodes[mynode.ID] = &mynode
 	}
 
 	myservices, err := cli.ServiceList(context.Background(), types.ServiceListOptions{})
@@ -40,7 +40,7 @@ func worker(cli *client.Client) {
 			Image: service.Spec.Labels["com.docker.stack.image"],
 		}
 
-		services[myservice.ID] = myservice
+		services[myservice.ID] = &myservice
 	}
 
 	mytasks, err := cli.TaskList(context.Background(), types.TaskListOptions{})
@@ -56,8 +56,9 @@ func worker(cli *client.Client) {
 			DesiresStatus: string(task.DesiredState),
 			Node: nodes[task.NodeID],
 		}
+		nodes[task.NodeID].TaskList = append(nodes[task.NodeID].TaskList, t)
 
-		tasks[t.ID] = t
+		tasks[t.ID] = &t
 	}
 }
 
@@ -67,9 +68,9 @@ func initWorker() {
 	if err != nil {
 		panic(err)
 	}
-	nodes = make(map[string]Nodes)
-	services = make(map[string]Services)
-	tasks = make(map[string]Tasks)
+	nodes = make(map[string]*Nodes)
+	services = make(map[string]*Services)
+	tasks = make(map[string]*Tasks)
 
 	for {
 		<- time.After(2 * time.Second)

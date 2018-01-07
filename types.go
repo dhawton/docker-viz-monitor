@@ -1,11 +1,12 @@
 package main
 
 type Nodes struct {
-	ID      string
-	Name    string
-	State   string
-	Role    string
-	Version string
+	ID       string
+	Name     string
+	State    string
+	Role     string
+	Version  string
+	TaskList []Tasks
 }
 
 type Services struct {
@@ -20,5 +21,5 @@ type Tasks struct {
 	NodeID        string
 	Status        string
 	DesiresStatus string
-	Node          Nodes
+	Node          *Nodes
 }
