@@ -6,6 +6,8 @@ type Nodes struct {
 	State   string
 	Role    string
 	Version string
+	Tasks   []string
+	updated int64
 }
 
 type Services struct {
@@ -20,5 +22,22 @@ type Tasks struct {
 	NodeID        string
 	Status        string
 	DesiresStatus string
-	Node          Nodes
+}
+
+func findTaskOrAdd(nodeID string, task Tasks) {
+	found := false
+	for _, v := range nodes[nodeID].Tasks {
+		if v == task.ID { found = true }
+	}
+	if found == false {
+		(nodes[nodeID]).Tasks = append((nodes[nodeID]).Tasks, task.ID)
+	}
+}
+
+func removeExpiredNodes(stamp int64) {
+	for k := range nodes {
+		if nodes[k].updated != stamp {
+			nodes[k] = nil
+		}
+	}
 }

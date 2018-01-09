@@ -9,25 +9,37 @@ import (
 	"golang.org/x/net/context"
 )
 
-var nodes map[string]Nodes
+var nodes map[string]*Nodes
 var services map[string]Services
 var tasks map[string]Tasks
 
 func worker(cli *client.Client) {
+	startTime := time.Now().UnixNano()
+
 	mynodes, err := cli.NodeList(context.Background(), types.NodeListOptions{})
 	if err != nil {
 		panic(err)
 	}
 	for _, node := range mynodes {
-		mynode := Nodes{
-			ID: node.ID,
-			Name: node.Spec.Labels["short"],
-			State: string(node.Status.State),
-			Role: string(node.Spec.Role),
-			Version: node.Description.Engine.EngineVersion,
+		if nodes[node.ID] == nil {
+			nodes[node.ID] = &Nodes{
+				ID:      node.ID,
+				Name:    node.Spec.Labels["short"],
+				State:   string(node.Status.State),
+				Role:    string(node.Spec.Role),
+				Version: node.Description.Engine.EngineVersion,
+				updated: startTime,
+			}
+			nodes[node.ID].Tasks = make([]string, 0, 5)
+		} else {
+			nodes[node.ID].Name = node.Spec.Labels["short"]
+			nodes[node.ID].State = string(node.Status.State)
+			nodes[node.ID].Role = string(node.Spec.Role)
+			nodes[node.ID].Version = node.Description.Engine.EngineVersion
+			nodes[node.ID].updated = startTime
 		}
-		nodes[mynode.ID] = mynode
 	}
+	removeExpiredNodes(startTime)
 
 	myservices, err := cli.ServiceList(context.Background(), types.ServiceListOptions{})
 	if err != nil {
@@ -54,10 +66,10 @@ func worker(cli *client.Client) {
 			NodeID: task.NodeID,
 			Status: string(task.Status.State),
 			DesiresStatus: string(task.DesiredState),
-			Node: nodes[task.NodeID],
 		}
 
 		tasks[t.ID] = t
+        findTaskOrAdd(t.NodeID, t)
 	}
 }
 
@@ -67,7 +79,7 @@ func initWorker() {
 	if err != nil {
 		panic(err)
 	}
-	nodes = make(map[string]Nodes)
+	nodes = make(map[string]*Nodes)
 	services = make(map[string]Services)
 	tasks = make(map[string]Tasks)
 
