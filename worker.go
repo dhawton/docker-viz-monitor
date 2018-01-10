@@ -69,10 +69,9 @@ func worker(cli *client.Client) {
 				Status:        string(task.Status.State),
 				DesiredStatus: string(task.DesiredState),
 			}
+			tasks[t.ID] = t
+			findTaskOrAdd(t.NodeID, t)
 		}
-
-		tasks[t.ID] = t
-		findTaskOrAdd(t.NodeID, t)
 	}
 }
 
