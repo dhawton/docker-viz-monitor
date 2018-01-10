@@ -4,8 +4,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/docker/docker/client"
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/swarm"
+	"github.com/docker/docker/client"
 	"golang.org/x/net/context"
 )
 
@@ -47,8 +48,8 @@ func worker(cli *client.Client) {
 	}
 	for _, service := range myservices {
 		myservice := Services{
-			ID: service.ID,
-			Name: service.Spec.Name,
+			ID:    service.ID,
+			Name:  service.Spec.Name,
 			Image: service.Spec.Labels["com.docker.stack.image"],
 		}
 
@@ -60,21 +61,23 @@ func worker(cli *client.Client) {
 		panic(err)
 	}
 	for _, task := range mytasks {
-		t := Tasks{
-			ID: task.ID,
-			ServiceID: task.ServiceID,
-			NodeID: task.NodeID,
-			Status: string(task.Status.State),
-			DesiresStatus: string(task.DesiredState),
+		if task.DesiredState != swarm.TaskStateShutdown {
+			t := Tasks{
+				ID:            task.ID,
+				ServiceID:     task.ServiceID,
+				NodeID:        task.NodeID,
+				Status:        string(task.Status.State),
+				DesiredStatus: string(task.DesiredState),
+			}
 		}
 
 		tasks[t.ID] = t
-        findTaskOrAdd(t.NodeID, t)
+		findTaskOrAdd(t.NodeID, t)
 	}
 }
 
 func initWorker() {
-	os.Setenv("DOCKER_API_VERSION", "1.35");
+	os.Setenv("DOCKER_API_VERSION", "1.35")
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		panic(err)
@@ -84,7 +87,7 @@ func initWorker() {
 	tasks = make(map[string]Tasks)
 
 	for {
-		<- time.After(2 * time.Second)
+		<-time.After(2 * time.Second)
 		worker(cli)
 	}
 }

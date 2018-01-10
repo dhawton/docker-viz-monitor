@@ -21,7 +21,7 @@ type Tasks struct {
 	ServiceID     string
 	NodeID        string
 	Status        string
-	DesiresStatus string
+	DesiredStatus string
 }
 
 func findTaskOrAdd(nodeID string, task Tasks) {
