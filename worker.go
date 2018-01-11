@@ -10,53 +10,50 @@ import (
 	"golang.org/x/net/context"
 )
 
-var nodes map[string]*Nodes
-var services map[string]*Services
-var tasks map[string]*Tasks
+var nodes []*Nodes
+var services []*Services
+var tasks []*Tasks
 
 func worker(cli *client.Client) {
 	startTime := time.Now().UnixNano()
+
+	newnodes := make([]*Nodes, 0, 5)
+	newservices := make([]*Services, 0, 5)
+	newtasks := make([]*Tasks, 0, 5)
 
 	mynodes, err := cli.NodeList(context.Background(), types.NodeListOptions{})
 	if err != nil {
 		panic(err)
 	}
 	for _, node := range mynodes {
-		if nodes[node.ID] == nil {
-			nodes[node.ID] = &Nodes{
-				ID:      node.ID,
-				Name:    node.Spec.Labels["short"],
-				State:   string(node.Status.State),
-				Role:    string(node.Spec.Role),
-				Version: node.Description.Engine.EngineVersion,
-				updated: startTime,
-			}
-			nodes[node.ID].Tasks = make([]string, 0, 5)
-		} else {
-			nodes[node.ID].Name = node.Spec.Labels["short"]
-			nodes[node.ID].State = string(node.Status.State)
-			nodes[node.ID].Role = string(node.Spec.Role)
-			nodes[node.ID].Version = node.Description.Engine.EngineVersion
-			nodes[node.ID].updated = startTime
+		n := &Nodes{
+			ID:      node.ID,
+			Name:    node.Spec.Labels["short"],
+			State:   string(node.Status.State),
+			Role:    string(node.Spec.Role),
+			Version: node.Description.Engine.EngineVersion,
+			updated: startTime,
 		}
+		n.Tasks = make([]*Tasks, 0, 5)
+		newnodes = append(newnodes, n)
 	}
-	removeExpiredNodes(startTime)
+	nodes = newnodes
 
 	myservices, err := cli.ServiceList(context.Background(), types.ServiceListOptions{})
 	if err != nil {
 		panic(err)
 	}
 	for _, service := range myservices {
-		myservice := &Services{
+		s := &Services{
 			ID:    service.ID,
 			Name:  service.Spec.Name,
 			Image: service.Spec.Labels["com.docker.stack.image"],
 			updated: startTime,
 		}
 
-		services[myservice.ID] = myservice
+		newservices = append(newservices, s)
 	}
-	removeExpiredServices(startTime)
+	services = newservices
 
 	mytasks, err := cli.TaskList(context.Background(), types.TaskListOptions{})
 	if err != nil {
@@ -74,11 +71,11 @@ func worker(cli *client.Client) {
 				DesiredStatus: string(task.DesiredState),
 				updated: startTime,
 			}
-			tasks[t.ID] = t
+			newtasks = append(newtasks, t)
 			findTaskOrAdd(t.NodeID, t)
 		}
 	}
-	removeExpiredTasks(startTime)
+	tasks = newtasks
 }
 
 func initWorker() {
@@ -87,9 +84,6 @@ func initWorker() {
 	if err != nil {
 		panic(err)
 	}
-	nodes = make(map[string]*Nodes)
-	services = make(map[string]*Services)
-	tasks = make(map[string]*Tasks)
 
 	for {
 		<-time.After(2 * time.Second)
