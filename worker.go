@@ -34,7 +34,7 @@ func worker(cli *client.Client) {
 			Version: node.Description.Engine.EngineVersion,
 			updated: startTime,
 		}
-		n.Tasks = make([]string, 0, 5)
+		n.Tasks = make([]*Tasks, 0, 5)
 		newnodes = append(newnodes, n)
 	}
 	nodes = newnodes
