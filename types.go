@@ -6,7 +6,7 @@ type Nodes struct {
 	State   string
 	Role    string
 	Version string
-	Tasks   []string
+	Tasks   []*Tasks
 	updated int64
 }
 
@@ -33,12 +33,12 @@ func findTaskOrAdd(nodeID string, task *Tasks) {
 	for i := range nodes {
 		if nodes[i].ID == nodeID {
 			for _, v := range nodes[i].Tasks {
-				if v == task.ID {
+				if v.ID == task.ID {
 					found = true
 				}
 			}
 			if found == false {
-				(nodes[i]).Tasks = append((nodes[i]).Tasks, task.ID)
+				(nodes[i]).Tasks = append((nodes[i]).Tasks, task)
 			}
 		}
 	}

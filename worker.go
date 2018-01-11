@@ -84,7 +84,7 @@ func initWorker() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	for {
 		<-time.After(2 * time.Second)
 		worker(cli)
