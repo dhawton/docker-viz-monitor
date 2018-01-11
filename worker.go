@@ -65,6 +65,8 @@ func worker(cli *client.Client) {
 			t := Tasks{
 				ID:            task.ID,
 				ServiceID:     task.ServiceID,
+				Image:         task.Spec.ContainerSpec.Image,
+				Hostname:      task.Spec.ContainerSpec.Hostname,
 				NodeID:        task.NodeID,
 				Status:        string(task.Status.State),
 				DesiredStatus: string(task.DesiredState),

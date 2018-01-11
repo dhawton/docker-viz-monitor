@@ -18,6 +18,8 @@ type Services struct {
 
 type Tasks struct {
 	ID            string
+	Image         string
+	Hostname      string
 	ServiceID     string
 	NodeID        string
 	Status        string
