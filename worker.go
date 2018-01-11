@@ -51,6 +51,7 @@ func worker(cli *client.Client) {
 			ID:    service.ID,
 			Name:  service.Spec.Name,
 			Image: service.Spec.Labels["com.docker.stack.image"],
+			updated: startTime,
 		}
 
 		services[myservice.ID] = myservice
@@ -71,6 +72,7 @@ func worker(cli *client.Client) {
 				NodeID:        task.NodeID,
 				Status:        string(task.Status.State),
 				DesiredStatus: string(task.DesiredState),
+				updated: startTime,
 			}
 			tasks[t.ID] = t
 			findTaskOrAdd(t.NodeID, t)
