@@ -28,7 +28,7 @@ func worker(cli *client.Client) {
 	for _, node := range mynodes {
 		n := &Nodes{
 			ID:      node.ID,
-			Name:    node.Spec.Labels["short"],
+			Name:    node.Description.Hostname,
 			State:   string(node.Status.State),
 			Role:    string(node.Spec.Role),
 			Version: node.Description.Engine.EngineVersion,
