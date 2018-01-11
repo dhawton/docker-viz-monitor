@@ -11,8 +11,8 @@ import (
 )
 
 var nodes map[string]*Nodes
-var services map[string]Services
-var tasks map[string]Tasks
+var services map[string]*Services
+var tasks map[string]*Tasks
 
 func worker(cli *client.Client) {
 	startTime := time.Now().UnixNano()
@@ -47,7 +47,7 @@ func worker(cli *client.Client) {
 		panic(err)
 	}
 	for _, service := range myservices {
-		myservice := Services{
+		myservice := &Services{
 			ID:    service.ID,
 			Name:  service.Spec.Name,
 			Image: service.Spec.Labels["com.docker.stack.image"],
@@ -55,6 +55,7 @@ func worker(cli *client.Client) {
 
 		services[myservice.ID] = myservice
 	}
+	removeExpiredServices(startTime)
 
 	mytasks, err := cli.TaskList(context.Background(), types.TaskListOptions{})
 	if err != nil {
@@ -62,7 +63,7 @@ func worker(cli *client.Client) {
 	}
 	for _, task := range mytasks {
 		if task.DesiredState != swarm.TaskStateShutdown {
-			t := Tasks{
+			t := &Tasks{
 				ID:            task.ID,
 				ServiceID:     task.ServiceID,
 				Image:         task.Spec.ContainerSpec.Image,
@@ -75,6 +76,7 @@ func worker(cli *client.Client) {
 			findTaskOrAdd(t.NodeID, t)
 		}
 	}
+	removeExpiredTasks(startTime)
 }
 
 func initWorker() {
@@ -84,8 +86,8 @@ func initWorker() {
 		panic(err)
 	}
 	nodes = make(map[string]*Nodes)
-	services = make(map[string]Services)
-	tasks = make(map[string]Tasks)
+	services = make(map[string]*Services)
+	tasks = make(map[string]*Tasks)
 
 	for {
 		<-time.After(2 * time.Second)
