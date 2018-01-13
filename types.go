@@ -25,6 +25,7 @@ type Tasks struct {
 	NodeID        string
 	Status        string
 	DesiredStatus string
+	Service       *Services
 	updated       int64
 }
 
@@ -42,4 +43,13 @@ func findTaskOrAdd(nodeID string, task *Tasks) {
 			}
 		}
 	}
+}
+
+func findService(ServiceID string) *Services {
+	for i := range services {
+		if services[i].ID == ServiceID {
+			return services[i]
+		}
+	}
+	return nil
 }

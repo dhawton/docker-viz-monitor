@@ -69,6 +69,7 @@ func worker(cli *client.Client) {
 				NodeID:        task.NodeID,
 				Status:        string(task.Status.State),
 				DesiredStatus: string(task.DesiredState),
+				Service:       findService(task.ServiceID),
 				updated: startTime,
 			}
 			newtasks = append(newtasks, t)
