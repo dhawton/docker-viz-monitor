@@ -3,7 +3,7 @@ language: go
 go:
 - tip
 script:
-- GOOS=linux go build -a -installsuffix cgo -o viz-monitor .
+- CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o viz-monitor .
 deploy:
   provider: releases
   skip_cleanup: true
